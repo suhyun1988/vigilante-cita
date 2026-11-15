@@ -1,0 +1,28 @@
+name: Vigilante cita previa
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install playwright requests && playwright install --with-deps chromium
+      - run: python vigilante_cita.py
+        env:
+          TRAMITE: ${{ secrets.TRAMITE }}
+          TWILIO_SID: ${{ secrets.TWILIO_SID }}
+          TWILIO_TOKEN: ${{ secrets.TWILIO_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          MI_MOVIL: ${{ secrets.MI_MOVIL }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capturas
+          path: |
+            paso2.png
+            paso2.html
